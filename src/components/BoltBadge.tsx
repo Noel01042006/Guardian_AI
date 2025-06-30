@@ -11,11 +11,11 @@ const CustomBoltBadge: React.FC = () => {
     >
       <picture>
         <source
-          srcSet="https://raw.githubusercontent.com/kickiniteasy/bolt-hackathon-badge/main/public/bolt-badge-white.png"
+          srcSet="https://pbs.twimg.com/profile_images/1880702021122342912/fe9TlQqJ_400x400.jpg"
           media="(prefers-color-scheme: dark)"
         />
         <img
-          src="https://raw.githubusercontent.com/kickiniteasy/bolt-hackathon-badge/main/public/bolt-badge-black.png"
+          src="https://pbs.twimg.com/profile_images/1880702021122342912/fe9TlQqJ_400x400.jpg"
           alt="Made in Bolt.new"
           className="w-16 h-16"
         />

@@ -11,13 +11,13 @@ const CustomBoltBadge = () => {
     >
       {/* Light Mode Badge */}
       <img
-        src="https://cdn.jsdelivr.net/gh/kickiniteasy/bolt-hackathon-badge/public/bolt-badge-black.png"
+        src="https://github.com/kickiniteasy/bolt-hackathon-badge/blob/main/src/public/bolt-badge/white_circle_360x360/white_circle_360x360.png"
         alt="Made in Bolt.new"
         className="w-16 h-16 dark:hidden"
       />
       {/* Dark Mode Badge */}
       <img
-        src="https://cdn.jsdelivr.net/gh/kickiniteasy/bolt-hackathon-badge/public/bolt-badge-white.png"
+        src="https://github.com/kickiniteasy/bolt-hackathon-badge/blob/main/src/public/bolt-badge/black_circle_360x360/black_circle_360x360.png"
         alt="Made in Bolt.new"
         className="w-16 h-16 hidden dark:block"
       />

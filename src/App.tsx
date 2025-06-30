@@ -1,4 +1,3 @@
-import CustomBoltBadge from "./components/BoltBadge";
 import React, { useEffect, useState } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import LandingPage from './components/LandingPage';
@@ -8,6 +7,8 @@ import AccessibilityControls from './components/AccessibilityControls';
 import AIAssistantSetup from './components/AIAssistantSetup';
 import FeatureTestDashboard from './components/FeatureTestDashboard';
 import AuthTestPanel from './components/AuthTestPanel';
+import CustomBoltBadge from './components/BoltBadge';
+import BackButton from './components/BackButton'; // ✅ Imported here
 import { User, AIAssistant } from './types';
 
 const AppContent: React.FC = () => {
@@ -16,7 +17,6 @@ const AppContent: React.FC = () => {
   const [showLanding, setShowLanding] = useState(true);
   const [showTestDashboard, setShowTestDashboard] = useState(false);
 
-  // Show test dashboard if URL contains test parameter
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('test') === 'true') {
@@ -25,7 +25,6 @@ const AppContent: React.FC = () => {
     }
   }, []);
 
-  // Show test dashboard
   if (showTestDashboard) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -45,12 +44,11 @@ const AppContent: React.FC = () => {
     );
   }
 
-  // Show landing page if not authenticated and showLanding is true
   if (!isAuthenticated && showLanding) {
     return (
       <>
         <LandingPage onGetStarted={() => setShowLanding(false)} />
-        <CustomBoltBadge />
+        <CustomBoltBadge /> {/* ✅ Badge on the landing page only */}
       </>
     );
   }
@@ -72,8 +70,7 @@ const AppContent: React.FC = () => {
       aiAssistants: {}
     };
     setCurrentUser(newUser);
-    
-    // Skip assistant setup for anonymous users or go directly to setup
+
     if (authUser?.isAnonymous) {
       handleSkipSetup();
     } else {
@@ -87,10 +84,8 @@ const AppContent: React.FC = () => {
   };
 
   const handleSkipSetup = () => {
-    // Create default assistants
     const defaultAssistants: { [key: string]: AIAssistant } = {};
-    
-    // Add tutor for teens
+
     if (currentUser?.role === 'teen') {
       defaultAssistants.tutor = {
         id: `tutor-${Date.now()}`,
@@ -102,7 +97,6 @@ const AppContent: React.FC = () => {
       };
     }
 
-    // Add wellbeing assistant for all roles
     defaultAssistants.wellbeing = {
       id: `wellbeing-${Date.now()}`,
       name: 'Harmony',
@@ -112,7 +106,6 @@ const AppContent: React.FC = () => {
       isActive: true
     };
 
-    // Add general assistant for all roles
     defaultAssistants.general = {
       id: `general-${Date.now()}`,
       name: 'Guardian',
@@ -164,7 +157,8 @@ const AppContent: React.FC = () => {
     <>
       <Dashboard role={currentUser.role} userName={currentUser.name} />
       <AccessibilityControls />
-      
+      <BackButton /> {/* ✅ Back button added here */}
+
       {/* Test Dashboard Access Button (Development Only) */}
       {import.meta.env.DEV && (
         <div className="fixed bottom-4 left-4 z-50">

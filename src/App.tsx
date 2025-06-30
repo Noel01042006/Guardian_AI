@@ -6,52 +6,36 @@ import Dashboard from './components/Dashboard';
 import AccessibilityControls from './components/AccessibilityControls';
 import AIAssistantSetup from './components/AIAssistantSetup';
 import FeatureTestDashboard from './components/FeatureTestDashboard';
-import AuthTestPanel from './components/AuthTestPanel';
 import CustomBoltBadge from './components/BoltBadge';
-import BackButton from './components/BackButton'; // ✅ Imported here
+import BackButton from './components/BackButton';
 import { User, AIAssistant } from './types';
 
 const AppContent: React.FC = () => {
   const { currentUser, setCurrentUser, updateUserAssistants, isAuthenticated, authUser } = useApp();
-  const [showAssistantSetup, setShowAssistantSetup] = useState(false);
-  const [showLanding, setShowLanding] = useState(true);
-  const [showTestDashboard, setShowTestDashboard] = useState(false);
+  const [viewStack, setViewStack] = useState<string[]>([]);
+  const [currentView, setCurrentView] = useState("landing");
 
+  // Dev-only test dashboard
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('test') === 'true') {
-      setShowTestDashboard(true);
-      setShowLanding(false);
+      setCurrentView("testDashboard");
     }
   }, []);
 
-  if (showTestDashboard) {
-    return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <div className="p-4">
-          <button
-            onClick={() => {
-              setShowTestDashboard(false);
-              window.history.replaceState({}, '', window.location.pathname);
-            }}
-            className="mb-4 bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors"
-          >
-            ← Back to App
-          </button>
-        </div>
-        <FeatureTestDashboard />
-      </div>
-    );
-  }
+  const navigateTo = (view: string) => {
+    setViewStack((prev) => [...prev, currentView]);
+    setCurrentView(view);
+  };
 
-  if (!isAuthenticated && showLanding) {
-    return (
-      <>
-        <LandingPage onGetStarted={() => setShowLanding(false)} />
-        <CustomBoltBadge /> {/* ✅ Badge on the landing page only */}
-      </>
-    );
-  }
+  const goBack = () => {
+    setViewStack((prev) => {
+      const newStack = [...prev];
+      const previous = newStack.pop() || "dashboard";
+      setCurrentView(previous);
+      return newStack;
+    });
+  };
 
   const handleRoleSelect = (role: User['role'], name: string) => {
     const newUser: User = {
@@ -73,14 +57,15 @@ const AppContent: React.FC = () => {
 
     if (authUser?.isAnonymous) {
       handleSkipSetup();
+      setCurrentView("dashboard");
     } else {
-      setShowAssistantSetup(true);
+      navigateTo("assistantSetup");
     }
   };
 
   const handleAssistantSetup = (assistants: { [key: string]: AIAssistant }) => {
     updateUserAssistants(assistants);
-    setShowAssistantSetup(false);
+    setCurrentView("dashboard");
   };
 
   const handleSkipSetup = () => {
@@ -91,7 +76,7 @@ const AppContent: React.FC = () => {
         id: `tutor-${Date.now()}`,
         name: 'StudyBuddy',
         type: 'tutor',
-        personality: 'Patient, encouraging, and knowledgeable. Loves helping students learn and grow academically.',
+        personality: 'Patient, encouraging, and knowledgeable.',
         avatar: 'tutor',
         isActive: true
       };
@@ -116,59 +101,73 @@ const AppContent: React.FC = () => {
     };
 
     updateUserAssistants(defaultAssistants);
-    setShowAssistantSetup(false);
   };
 
   const getDefaultWellbeingPersonality = (role: string): string => {
     const personalities = {
-      elder: 'Wise, compassionate, and understanding. Provides gentle support and listens with empathy.',
-      teen: 'Relatable, supportive, and non-judgmental. Understands the unique challenges of teenage life.',
-      child: 'Kind, gentle, and nurturing. Uses simple language and provides comfort and reassurance.',
-      parent: 'Understanding, practical, and supportive. Recognizes the challenges of parenting and family life.'
+      elder: 'Wise and compassionate.',
+      teen: 'Relatable and supportive.',
+      child: 'Gentle and comforting.',
+      parent: 'Understanding and practical.'
     };
     return personalities[role as keyof typeof personalities] || personalities.parent;
   };
 
   const getDefaultGeneralPersonality = (role: string): string => {
     const personalities = {
-      elder: 'Helpful, patient, and security-focused. Prioritizes safety and clear communication.',
-      teen: 'Friendly, knowledgeable, and encouraging. Supports personal growth and exploration.',
-      child: 'Fun, educational, and safe. Makes learning enjoyable while ensuring child safety.',
-      parent: 'Efficient, family-oriented, and practical. Helps manage family life and responsibilities.'
+      elder: 'Helpful and patient.',
+      teen: 'Friendly and encouraging.',
+      child: 'Fun and safe.',
+      parent: 'Efficient and family-focused.'
     };
     return personalities[role as keyof typeof personalities] || personalities.parent;
   };
 
-  if (!currentUser) {
-    return <RoleSelector onRoleSelect={handleRoleSelect} />;
-  }
-
-  if (showAssistantSetup) {
-    return (
-      <AIAssistantSetup
-        userRole={currentUser.role}
-        onSetupComplete={handleAssistantSetup}
-        onSkip={handleSkipSetup}
-      />
-    );
-  }
-
   return (
     <>
-      <Dashboard role={currentUser.role} userName={currentUser.name} />
-      <AccessibilityControls />
-      <BackButton /> {/* ✅ Back button added here */}
+      {/* Back button visible on all views except landing */}
+      {currentView !== "landing" && <BackButton onClick={goBack} />}
 
-      {/* Test Dashboard Access Button (Development Only) */}
-      {import.meta.env.DEV && (
-        <div className="fixed bottom-4 left-4 z-50">
-          <button
-            onClick={() => setShowTestDashboard(true)}
-            className="bg-purple-500 text-white px-3 py-2 rounded-lg text-xs hover:bg-purple-600 transition-colors shadow-lg"
-            title="Open Test Dashboard"
-          >
-            🧪 Tests
-          </button>
+      {currentView === "landing" && (
+        <>
+          <LandingPage onGetStarted={() => navigateTo("roleSelector")} />
+          <CustomBoltBadge />
+        </>
+      )}
+
+      {currentView === "roleSelector" && (
+        <RoleSelector onRoleSelect={handleRoleSelect} />
+      )}
+
+      {currentView === "assistantSetup" && currentUser && (
+        <AIAssistantSetup
+          userRole={currentUser.role}
+          onSetupComplete={handleAssistantSetup}
+          onSkip={() => {
+            handleSkipSetup();
+            setCurrentView("dashboard");
+          }}
+        />
+      )}
+
+      {currentView === "dashboard" && currentUser && (
+        <>
+          <Dashboard role={currentUser.role} userName={currentUser.name} />
+          <AccessibilityControls />
+        </>
+      )}
+
+      {currentView === "testDashboard" && (
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+          <div className="p-4">
+            <button
+              onClick={() => setCurrentView("dashboard")}
+              className="mb-4 bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors"
+            >
+              ← Back to App
+            </button>
+          </div>
+          <FeatureTestDashboard />
         </div>
       )}
     </>

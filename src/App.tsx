@@ -1,3 +1,4 @@
+import CustomBoltBadge from "./components/BoltBadge";
 import React, { useEffect, useState } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import LandingPage from './components/LandingPage';
@@ -46,7 +47,12 @@ const AppContent: React.FC = () => {
 
   // Show landing page if not authenticated and showLanding is true
   if (!isAuthenticated && showLanding) {
-    return <LandingPage onGetStarted={() => setShowLanding(false)} />;
+    return (
+      <>
+        <LandingPage onGetStarted={() => setShowLanding(false)} />
+        <CustomBoltBadge />
+      </>
+    );
   }
 
   const handleRoleSelect = (role: User['role'], name: string) => {

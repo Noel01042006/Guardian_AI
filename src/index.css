@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Ensure smooth transitions for theme changes */
+* {
+  transition-property: color, background-color, border-color;
+  transition-duration: 200ms;
+  transition-timing-function: ease-in-out;
+}
+
+/* Force dark mode styles to take precedence */
+.dark {
+  color-scheme: dark;
+}
+
+/* Ensure body background changes with theme */
+body {
+  @apply bg-white dark:bg-gray-900 text-gray-900 dark:text-white;
+}
+
+/* Fix any potential CSS specificity issues */
+html.dark body {
+  background-color: rgb(17 24 39) !important;
+  color: rgb(255 255 255) !important;
+}

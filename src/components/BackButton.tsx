@@ -1,17 +1,19 @@
-import React from "react";
+import React from 'react';
 
-const BackButton: React.FC = () => {
-  const goBack = () => {
-    window.history.back();
-  };
+interface BackButtonProps {
+  onClick: () => void;
+}
 
+const BackButton: React.FC<BackButtonProps> = ({ onClick }) => {
   return (
-    <button
-      onClick={goBack}
-      className="fixed top-4 left-4 z-50 bg-gray-100 dark:bg-gray-800 text-black dark:text-white px-3 py-1 rounded-lg shadow hover:bg-gray-200 dark:hover:bg-gray-700 transition"
-    >
-      ← Back
-    </button>
+    <div className="fixed top-4 left-4 z-50">
+      <button
+        onClick={onClick}
+        className="bg-gray-800 text-white dark:bg-white dark:text-black px-4 py-2 rounded-full shadow hover:opacity-80 transition"
+      >
+        ← Back
+      </button>
+    </div>
   );
 };
 

@@ -6,20 +6,14 @@ const CustomBoltBadge: React.FC = () => {
       href="https://bolt.new"
       target="_blank"
       rel="noopener noreferrer"
-      className="fixed top-4 right-4 z-50"
+      className="fixed top-4 right-20 z-50"
       aria-label="Made with Bolt.new"
     >
-      <picture>
-        <source
-          srcSet="https://pbs.twimg.com/profile_images/1880702021122342912/fe9TlQqJ_400x400.jpg"
-          media="(prefers-color-scheme: dark)"
-        />
-        <img
-          src="https://pbs.twimg.com/profile_images/1880702021122342912/fe9TlQqJ_400x400.jpg"
-          alt="Made in Bolt.new"
-          className="w-16 h-16"
-        />
-      </picture>
+      <img
+        src="https://imagedelivery.net/lLmNeOP7HXG0OqaG97wimw/a1c1a0e2-a9e6-4a3e-8b6c-4b5c4e4e4e00/public"
+        alt="Built with Bolt"
+        className="w-32 h-auto"
+      />
     </a>
   );
 };

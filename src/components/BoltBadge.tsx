@@ -10,7 +10,7 @@ const CustomBoltBadge: React.FC = () => {
       aria-label="Made with Bolt.new"
     >
       <img
-        src="https://imagedelivery.net/lLmNeOP7HXG0OqaG97wimw/a1c1a0e2-a9e6-4a3e-8b6c-4b5c4e4e4e00/public"
+        src="https://www.google.com/url?sa=i&url=https%3A%2F%2Fdev.to%2Fthankamatho%2Fday-3-11fj&psig=AOvVaw0jdq4r7ROiyRlFE9lvq9mH&ust=1751548956361000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCLjrvL2ino4DFQAAAAAdAAAAABAE"
         alt="Built with Bolt"
         className="w-32 h-auto"
       />

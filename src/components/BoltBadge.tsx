@@ -9,7 +9,7 @@ const CustomBoltBadge: React.FC = () => {
       href="https://bolt.new"
       target="_blank"
       rel="noopener noreferrer"
-      className="fixed top-4 right-20 z-50"
+      className="fixed top-4 right-24 z-50"
     >
       <img
         src={darkMode ? "/assets/black_circle_360x360.png" : "/assets/white_circle_360x360.png"}

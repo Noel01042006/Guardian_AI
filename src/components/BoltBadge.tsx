@@ -9,7 +9,7 @@ const CustomBoltBadge: React.FC = () => {
       className="fixed top-4 right-20 z-50"
     >
       <img
-        src="/assets/Capture.png"  // 👈 This points to public/bolt-badge.png
+        src="/assets/black_circle_360x360.png"  // 👈 This points to public/bolt-badge.png
         alt="Bolt Badge"
         className="w-20 h-auto"
       />

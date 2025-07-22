@@ -1,17 +1,20 @@
 import React from "react";
+import { useApp } from '../context/AppContext';
 
 const CustomBoltBadge: React.FC = () => {
+  const { darkMode } = useApp();
+
   return (
     <a
       href="https://bolt.new"
       target="_blank"
       rel="noopener noreferrer"
-      className="fixed top-4 right-20 z-50"
+      className="fixed top-4 right-32 z-50"
     >
       <img
-        src="/assets/black_circle_360x360.png"  // 👈 This points to public/bolt-badge.png
+        src={darkMode ? "/assets/black_circle_360x360.png" : "/assets/white_circle_360x360.png"}
         alt="Bolt Badge"
-        className="w-20 h-auto"
+        className="w-16 h-auto"
       />
     </a>
   );

@@ -1,13 +1,24 @@
 // Enhanced AI service with advanced capabilities
+import OpenAI from 'openai';
+
 export class AIService {
   private static instance: AIService;
-  private apiKey: string | null = null;
+  private geminiApiKey: string | null = null;
+  private openaiClient: OpenAI | null = null;
   private scamDatabase: any[] = [];
   private lastDatabaseUpdate: Date = new Date();
 
   private constructor() {
-    // In production, get this from environment variables
-    this.apiKey = import.meta.env.VITE_OPENAI_API_KEY || null;
+    // Initialize API clients
+    this.geminiApiKey = import.meta.env.VITE_GEMINI_API_KEY || null;
+    
+    if (import.meta.env.VITE_OPENAI_API_KEY) {
+      this.openaiClient = new OpenAI({
+        apiKey: import.meta.env.VITE_OPENAI_API_KEY,
+        dangerouslyAllowBrowser: true
+      });
+    }
+    
     this.initializeScamDatabase();
   }
 
@@ -85,6 +96,24 @@ export class AIService {
     assistantName: string,
     conversationHistory: any[] = []
   ): Promise<string> {
+    // Try Gemini API first if available
+    if (this.geminiApiKey) {
+      try {
+        return await this.generateGeminiResponse(message, assistantType, userRole, assistantName, conversationHistory);
+      } catch (error) {
+        console.warn('Gemini API failed, falling back to mock responses:', error);
+      }
+    }
+    
+    // Try OpenAI if available
+    if (this.openaiClient) {
+      try {
+        return await this.generateOpenAIResponse(message, assistantType, userRole, assistantName, conversationHistory);
+      } catch (error) {
+        console.warn('OpenAI API failed, falling back to mock responses:', error);
+      }
+    }
+    
     // Enhanced AI response generation with context awareness
     const context = this.analyzeContext(message, conversationHistory, userRole);
     const intent = this.detectIntent(message, assistantType);
@@ -101,6 +130,91 @@ export class AIService {
       emotion,
       conversationHistory
     );
+  }
+
+  private async generateGeminiResponse(
+    message: string,
+    assistantType: string,
+    userRole: string,
+    assistantName: string,
+    conversationHistory: any[]
+  ): Promise<string> {
+    const systemPrompt = this.buildSystemPrompt(assistantType, userRole, assistantName);
+    const conversationContext = this.buildConversationContext(conversationHistory);
+    
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${this.geminiApiKey}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contents: [{
+          parts: [{
+            text: `${systemPrompt}\n\nConversation Context:\n${conversationContext}\n\nUser Message: ${message}`
+          }]
+        }],
+        generationConfig: {
+          temperature: 0.7,
+          topK: 40,
+          topP: 0.95,
+          maxOutputTokens: 1024,
+        }
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Gemini API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.candidates[0]?.content?.parts[0]?.text || 'I apologize, but I had trouble generating a response. Could you please try again?';
+  }
+
+  private async generateOpenAIResponse(
+    message: string,
+    assistantType: string,
+    userRole: string,
+    assistantName: string,
+    conversationHistory: any[]
+  ): Promise<string> {
+    if (!this.openaiClient) throw new Error('OpenAI client not initialized');
+    
+    const systemPrompt = this.buildSystemPrompt(assistantType, userRole, assistantName);
+    const messages = [
+      { role: 'system', content: systemPrompt },
+      ...conversationHistory.slice(-10).map(msg => ({
+        role: msg.sender === 'user' ? 'user' : 'assistant',
+        content: msg.content
+      })),
+      { role: 'user', content: message }
+    ];
+
+    const completion = await this.openaiClient.chat.completions.create({
+      model: 'gpt-3.5-turbo',
+      messages: messages as any,
+      temperature: 0.7,
+      max_tokens: 1024
+    });
+
+    return completion.choices[0]?.message?.content || 'I apologize, but I had trouble generating a response. Could you please try again?';
+  }
+
+  private buildSystemPrompt(assistantType: string, userRole: string, assistantName: string): string {
+    const basePrompt = `You are ${assistantName}, a helpful AI assistant specialized in ${assistantType} support for a ${userRole}.`;
+    
+    if (assistantType === 'tutor') {
+      return `${basePrompt} You help with homework, explain concepts clearly, provide examples, and encourage learning. Be patient, encouraging, and adapt your explanations to the user's level.`;
+    } else if (assistantType === 'wellbeing') {
+      return `${basePrompt} You provide emotional support, listen empathetically, and offer gentle guidance. Be compassionate, understanding, and supportive.`;
+    } else {
+      return `${basePrompt} You assist with general questions, provide helpful information, and prioritize safety. Be helpful, informative, and always consider the user's safety and wellbeing.`;
+    }
+  }
+
+  private buildConversationContext(history: any[]): string {
+    return history.slice(-5).map(msg => 
+      `${msg.sender === 'user' ? 'User' : 'Assistant'}: ${msg.content}`
+    ).join('\n');
   }
 
   private analyzeContext(message: string, history: any[], userRole: string) {

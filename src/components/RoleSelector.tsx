@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { UserRole } from '../types';
 import Avatar from './Avatar';
+import NameInputModal from './NameInputModal';
 import { useApp } from '../context/AppContext';
 import { LogOut, UserX } from 'lucide-react';
 
@@ -10,6 +11,8 @@ interface RoleSelectorProps {
 
 const RoleSelector: React.FC<RoleSelectorProps> = ({ onRoleSelect }) => {
   const { authUser, signOut } = useApp();
+  const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
+  const [showNameInput, setShowNameInput] = useState(false);
 
   const roles = [
     {
@@ -43,14 +46,31 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ onRoleSelect }) => {
     
     // For anonymous users, use a default name
     if (authUser?.isAnonymous) {
-      name = 'Demo User';
-    } else if (!name || name.trim() === '') {
-      name = prompt(`Welcome! Please enter your name:`);
+      onRoleSelect(role, 'Demo User');
+      return;
     }
     
+    // If user has a display name, use it directly
     if (name && name.trim()) {
       onRoleSelect(role, name.trim());
+    } else {
+      // Show styled name input modal
+      setSelectedRole(role);
+      setShowNameInput(true);
     }
+  };
+
+  const handleNameSubmit = (name: string) => {
+    if (selectedRole) {
+      onRoleSelect(selectedRole, name);
+    }
+    setShowNameInput(false);
+    setSelectedRole(null);
+  };
+
+  const handleNameCancel = () => {
+    setShowNameInput(false);
+    setSelectedRole(null);
   };
 
   return (
@@ -148,6 +168,15 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ onRoleSelect }) => {
           {authUser?.isAnonymous && <span>🎭 Demo Mode Active</span>}
         </div>
       </div>
+
+      {/* Name Input Modal */}
+      {showNameInput && selectedRole && (
+        <NameInputModal
+          role={selectedRole}
+          onSubmit={handleNameSubmit}
+          onCancel={handleNameCancel}
+        />
+      )}
     </div>
   );
 };

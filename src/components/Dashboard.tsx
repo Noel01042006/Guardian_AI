@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Shield, MessageCircle, BookOpen, Heart, AlertTriangle, TrendingUp, GraduationCap, Bot, Users, Eye, Lightbulb, Clock, Briefcase, Lock, Activity } from 'lucide-react';
+import { Shield, MessageCircle, BookOpen, Heart, AlertTriangle, TrendingUp, GraduationCap, Bot, Users, Eye, Lightbulb, Clock, Briefcase, Lock, Activity, Timer } from 'lucide-react';
 import { UserRole, ScamAlert, JournalEntry, AIAssistant } from '../types';
 import Avatar from './Avatar';
 import ChatInterface from './ChatInterface';
@@ -13,6 +13,7 @@ import HealthReminders from './HealthReminders';
 import StudyHelper from './StudyHelper';
 import CyberSecurityTips from './CyberSecurityTips';
 import CareerGuidance from './CareerGuidance';
+import PomodoroTimer from './PomodoroTimer';
 import { useApp } from '../context/AppContext';
 
 interface DashboardProps {
@@ -33,6 +34,7 @@ const Dashboard: React.FC<DashboardProps> = ({ role, userName }) => {
   const [showStudyHelper, setShowStudyHelper] = useState(false);
   const [showCyberSecurityTips, setShowCyberSecurityTips] = useState(false);
   const [showCareerGuidance, setShowCareerGuidance] = useState(false);
+  const [showPomodoroTimer, setShowPomodoroTimer] = useState(false);
 
   // Get available assistants for the current user
   const availableAssistants = currentUser?.aiAssistants ? Object.values(currentUser.aiAssistants) : [];
@@ -71,9 +73,9 @@ const Dashboard: React.FC<DashboardProps> = ({ role, userName }) => {
       color: 'from-purple-400 to-blue-500',
       features: [
         { name: 'Study Helper', icon: GraduationCap, action: () => setShowStudyHelper(true) },
+        { name: 'Focus Timer', icon: Timer, action: () => setShowPomodoroTimer(true) },
         { name: 'Cybersecurity Tips', icon: Lock, action: () => setShowCyberSecurityTips(true) },
-        { name: 'Career Guidance', icon: Briefcase, action: () => setShowCareerGuidance(true) },
-        { name: 'Mental Health', icon: Heart, action: () => {} }
+        { name: 'Career Guidance', icon: Briefcase, action: () => setShowCareerGuidance(true) }
       ],
       recentAlerts: [
         { id: '1', content: 'Social media privacy check', riskLevel: 'medium' as const, type: 'Privacy', timestamp: new Date() }
@@ -84,9 +86,9 @@ const Dashboard: React.FC<DashboardProps> = ({ role, userName }) => {
       color: 'from-pink-400 to-yellow-400',
       features: [
         { name: 'Safe Learning', icon: BookOpen, action: () => {} },
+        { name: 'Study Timer', icon: Timer, action: () => setShowPomodoroTimer(true) },
         { name: 'Fun Activities', icon: Heart, action: () => {} },
-        { name: 'Ask Questions', icon: MessageCircle, action: () => {} },
-        { name: 'Parent Check-in', icon: Users, action: () => {} }
+        { name: 'Ask Questions', icon: MessageCircle, action: () => {} }
       ],
       recentAlerts: []
     },
@@ -374,6 +376,10 @@ const Dashboard: React.FC<DashboardProps> = ({ role, userName }) => {
 
       {showCareerGuidance && (
         <CareerGuidance onClose={() => setShowCareerGuidance(false)} />
+      )}
+
+      {showPomodoroTimer && (
+        <PomodoroTimer onClose={() => setShowPomodoroTimer(false)} />
       )}
     </div>
   );
